@@ -19,12 +19,14 @@ import (
 	lm "github.com/charmbracelet/wish/logging"
 )
 
+// Sets the host server as local on the port 1234
 const (
 	host = "localhost"
-	port = 23234
+	port = 1234
 )
 
 func main() {
+	// Creates a new ssh wish server and uses the teaHandler as the middle ware
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", host, port)),
 		wish.WithHostKeyPath(".ssh/term_info_ed25519"),
@@ -37,6 +39,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	// Starts the server
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	log.Printf("Starting SSH server on %s:%d", host, port)
@@ -46,6 +49,7 @@ func main() {
 		}
 	}()
 
+	// Closes the server
 	<-done
 	log.Println("Stopping SSH server")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -73,7 +77,7 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	return m, []tea.ProgramOption{tea.WithAltScreen()}
 }
 
-// Just a generic tea.Model to demo terminal information of ssh.
+// Basic tea model to return terminal information
 type model struct {
 	term   string
 	width  int
