@@ -27,9 +27,9 @@ const (
 func main() {
 	// Creates a new ssh wish server and uses the teaHandler as the middle ware
 	s, err := wish.NewServer(
-		wish.WithAddress(fmt.Sprintf("%s:%d", host, port)),
-		wish.WithHostKeyPath(".ssh/term_info_ed25519"),
-		wish.WithMiddleware(
+		wish.WithAddress(fmt.Sprintf("%s:%d", host, port)), // Sets the server address
+		wish.WithHostKeyPath(".ssh/term_info_ed25519"),     // Sets the host key path
+		wish.WithMiddleware( // Uses the tea handler as middle ware that is defined below
 			bm.Middleware(teaHandler),
 			lm.Middleware(),
 		),
@@ -65,12 +65,12 @@ func main() {
 func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	_, _, active := s.Pty()
 	if !active {
-		wish.Fatalln(s, "no active terminal, skipping")
+		wish.Fatalln(s, "Could not start ssh session") // Error if ssh session doesnt start
 		return nil, nil
 	}
 
-	models = []tea.Model{New(), NewForm(todo)}
-	m := models[model]
+	models = []tea.Model{New(), NewForm(todo)} // Declares models as a nwe model that points to an existing one
+	m := models[model]                         // Sets m to our model defined in kanban
 
 	return m, []tea.ProgramOption{tea.WithAltScreen()}
 }
